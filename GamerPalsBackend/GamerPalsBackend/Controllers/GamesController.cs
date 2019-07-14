@@ -1,124 +1,92 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GamerPalsBackend.DataObjects;
 using GamerPalsBackend.DataObjects.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
+using MongoDB.Bson;
 
 namespace GamerPalsBackend.Controllers
 {
-    [Produces("application/json")]
-    [Route("api/Games")]
-    public class GamesController : Controller
+    [Route("api/Game")]
+    [ApiController]
+    public class GamesController : ControllerBase
     {
-        private readonly PalsContext _context;
-
-        public GamesController(PalsContext context)
+        private MongoContext _context;
+        private MongoHelper<Game> helper;
+        public GamesController(MongoContext context)
         {
             _context = context;
+            helper = new MongoHelper<Game>(context);
         }
-
-        // GET: api/Games
+        // GET: api/Default
         [HttpGet]
-        public IEnumerable<Game> GetGames()
+        public async Task<List<Game>> Get()
         {
-            return _context.Games;
+            return await helper.GetAll();
         }
 
-        // GET: api/Games/5
+        // GET: api/Default/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetGame([FromRoute] int id)
+        public async Task<IActionResult> Get(ObjectId id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var game = await _context.Games.SingleOrDefaultAsync(m => m.GameID == id);
-
-            if (game == null)
+            if (!await helper.Exists(id))
             {
                 return NotFound();
             }
+            var doc = await helper.Get(id);
 
-            return Ok(game);
+            return Ok(doc);
         }
 
-        // PUT: api/Games/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutGame([FromRoute] int id, [FromBody] Game game)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != game.GameID)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(game).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!GameExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Games
+        // POST: api/Default
         [HttpPost]
-        public async Task<IActionResult> PostGame([FromBody] Game game)
+        public async Task<IActionResult> Post([FromBody] Game value)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var id = await helper.Create(value);
 
-            _context.Games.Add(game);
-            await _context.SaveChangesAsync();
+            return new CreatedResult("api/Default/" + id._id, id);
 
-            return CreatedAtAction("GetGame", new { id = game.GameID }, game);
         }
 
-        // DELETE: api/Games/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteGame([FromRoute] int id)
+        // PUT: api/Default/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(ObjectId id, [FromBody] Game document)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var game = await _context.Games.SingleOrDefaultAsync(m => m.GameID == id);
-            if (game == null)
+            if (!await helper.Exists(id))
             {
                 return NotFound();
             }
-
-            _context.Games.Remove(game);
-            await _context.SaveChangesAsync();
-
-            return Ok(game);
+            var doc = await helper.Update(id, document);
+            if (doc)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
         }
 
-        private bool GameExists(int id)
+        // DELETE: api/ApiWithActions/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(ObjectId id)
         {
-            return _context.Games.Any(e => e.GameID == id);
+            if (!await helper.Exists(id))
+            {
+                return NotFound();
+            }
+            var result = await helper.Delete(id);
+            if (result)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
         }
     }
 }

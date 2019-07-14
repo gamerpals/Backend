@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace GamerPalsBackend.DataObjects.Models
 {
-    public class Language
+    public class Language : IModelBase
     {
-        public int LanguageID { get; set; }
-        public string LangShort { get; set; }
-        public string LangLong { get; set; }
-        public List<UserLanguage> Users { get; set; }
+        [BsonId]
+        public ObjectId _id { get; set; }
+        public string nativeName { get; set; }
+        public string Name { get; set; }
+        public string Code { get; set; }
     }
 }

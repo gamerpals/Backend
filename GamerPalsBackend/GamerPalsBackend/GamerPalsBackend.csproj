@@ -15,9 +15,7 @@
     <PackageReference Include="Google.Apis" Version="1.38.2" />
     <PackageReference Include="Google.Apis.Oauth2.v2" Version="1.38.0.1532" />
     <PackageReference Include="log4net.AspNetCore" Version="1.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.All"/>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
+    <PackageReference Include="Microsoft.AspNetCore.All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="NSwag.AspNetCore" Version="12.1.0" />
@@ -25,11 +23,10 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
-    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GamerpalsBackend.DataObjects\GamerpalsBackend.DataObjects.csproj" />
+    <ProjectReference Include="..\GamerpalsBackend.DataObjects\GamerPalsBackend.DataObjects.csproj" />
     <ProjectReference Include="..\ReferenceManager\ReferenceManager.csproj" />
   </ItemGroup>
 
@@ -39,4 +36,7 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
 </Project>

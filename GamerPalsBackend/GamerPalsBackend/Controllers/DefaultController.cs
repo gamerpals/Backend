@@ -4,28 +4,26 @@ using System.Linq;
 using System.Threading.Tasks;
 using GamerPalsBackend.DataObjects;
 using GamerPalsBackend.DataObjects.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 
 namespace GamerPalsBackend.Controllers
 {
-    [Route("api/Role")]
+    [Route("api/IModelBase")]
     [ApiController]
-    [Authorize(Roles = Role.Admin)]
-    public class RolesController : ControllerBase
+    public class DefaultController : ControllerBase
     {
         private MongoContext _context;
-        private MongoHelper<Role> helper;
-        public RolesController(MongoContext context)
+        private MongoHelper<IModelBase> helper;
+        public DefaultController(MongoContext context)
         {
             _context = context;
-            helper = new MongoHelper<Role>(context);
+            helper = new MongoHelper<IModelBase>(context);
         }
         // GET: api/Default
         [HttpGet]
-        public async Task<List<Role>> Get()
+        public async Task<List<IModelBase>> Get()
         {
             return await helper.GetAll();
         }
@@ -34,7 +32,7 @@ namespace GamerPalsBackend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(ObjectId id)
         {
-            if (!await helper.Exists(id))
+            if (! await helper.Exists(id))
             {
                 return NotFound();
             }
@@ -45,17 +43,17 @@ namespace GamerPalsBackend.Controllers
 
         // POST: api/Default
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Role value)
+        public async Task<IActionResult> Post([FromBody] IModelBase value)
         {
             var id = await helper.Create(value);
 
-            return new CreatedResult("api/Default/" + id._id, id);
+            return new CreatedResult("api/Default/"+id._id, id);
 
         }
 
         // PUT: api/Default/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(ObjectId id, [FromBody] Role document)
+        public async Task<IActionResult> Put(ObjectId id, [FromBody] IModelBase document)
         {
             if (!await helper.Exists(id))
             {
@@ -76,7 +74,7 @@ namespace GamerPalsBackend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(ObjectId id)
         {
-            if (!await helper.Exists(id))
+            if (! await helper.Exists(id))
             {
                 return NotFound();
             }

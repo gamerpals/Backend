@@ -1,139 +1,92 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GamerPalsBackend.DataObjects;
 using GamerPalsBackend.DataObjects.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
+using MongoDB.Bson;
 
 namespace GamerPalsBackend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/SearchParameter")]
     [ApiController]
     public class SearchParametersController : ControllerBase
     {
-        private readonly PalsContext _context;
-
-        public SearchParametersController(PalsContext context)
+        private MongoContext _context;
+        private MongoHelper<SearchParameter> helper;
+        public SearchParametersController(MongoContext context)
         {
             _context = context;
+            helper = new MongoHelper<SearchParameter>(context);
         }
-
-        // GET: api/SearchParameters
+        // GET: api/Default
         [HttpGet]
-        public IEnumerable<SearchParameter> GetSearchParameters()
+        public async Task<List<SearchParameter>> Get()
         {
-            return _context.SearchParameters;
+            return await helper.GetAll();
         }
 
-        // GET: api/SearchParameters/5
+        // GET: api/Default/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetSearchParameter([FromRoute] int id)
+        public async Task<IActionResult> Get(ObjectId id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var searchParameter = await _context.SearchParameters.FindAsync(id);
-
-            if (searchParameter == null)
+            if (!await helper.Exists(id))
             {
                 return NotFound();
             }
+            var doc = await helper.Get(id);
 
-            return Ok(searchParameter);
+            return Ok(doc);
         }
 
-        // PUT: api/SearchParameters/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutSearchParameter([FromRoute] int id, [FromBody] SearchParameter searchParameter)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != searchParameter.ActiveSearchID)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(searchParameter).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SearchParameterExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/SearchParameters
+        // POST: api/Default
         [HttpPost]
-        public async Task<IActionResult> PostSearchParameter([FromBody] SearchParameter searchParameter)
+        public async Task<IActionResult> Post([FromBody] SearchParameter value)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var id = await helper.Create(value);
 
-            _context.SearchParameters.Add(searchParameter);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (SearchParameterExists(searchParameter.ActiveSearchID))
-                {
-                    return new StatusCodeResult(StatusCodes.Status409Conflict);
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            return new CreatedResult("api/Default/" + id._id, id);
 
-            return CreatedAtAction("GetSearchParameter", new { id = searchParameter.ActiveSearchID }, searchParameter);
         }
 
-        // DELETE: api/SearchParameters/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSearchParameter([FromRoute] int id)
+        // PUT: api/Default/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(ObjectId id, [FromBody] SearchParameter document)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var searchParameter = await _context.SearchParameters.FindAsync(id);
-            if (searchParameter == null)
+            if (!await helper.Exists(id))
             {
                 return NotFound();
             }
-
-            _context.SearchParameters.Remove(searchParameter);
-            await _context.SaveChangesAsync();
-
-            return Ok(searchParameter);
+            var doc = await helper.Update(id, document);
+            if (doc)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
         }
 
-        private bool SearchParameterExists(int id)
+        // DELETE: api/ApiWithActions/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(ObjectId id)
         {
-            return _context.SearchParameters.Any(e => e.ActiveSearchID == id);
+            if (!await helper.Exists(id))
+            {
+                return NotFound();
+            }
+            var result = await helper.Delete(id);
+            if (result)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
         }
     }
 }

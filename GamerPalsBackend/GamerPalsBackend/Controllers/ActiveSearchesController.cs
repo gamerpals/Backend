@@ -1,126 +1,92 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GamerPalsBackend.DataObjects;
 using GamerPalsBackend.DataObjects.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
+using MongoDB.Bson;
 
 namespace GamerPalsBackend.Controllers
 {
-    [Produces("application/json")]
-    [Route("api/ActiveSearches")]
-    [Authorize(Roles = "Verified")]
-    public class ActiveSearchesController : Controller
+    [Route("api/ActiveSearch")]
+    [ApiController]
+    public class ActiveSearchesController : ControllerBase
     {
-        private readonly PalsContext _context;
-
-        public ActiveSearchesController(PalsContext context)
+        private MongoContext _context;
+        private MongoHelper<ActiveSearch> helper;
+        public ActiveSearchesController(MongoContext context)
         {
             _context = context;
+            helper = new MongoHelper<ActiveSearch>(context);
         }
-
-        // GET: api/ActiveSearches
+        // GET: api/Default
         [HttpGet]
-        public IEnumerable<ActiveSearch> GetActiveSearches()
+        public async Task<List<ActiveSearch>> Get()
         {
-            return _context.ActiveSearches.Include(b => b.JoinedUsers).ThenInclude(joins => joins.User).Include(b => b.Parameters).Include(b => b.Owner);
+            return await helper.GetAll();
         }
 
-        // GET: api/ActiveSearches/5
+        // GET: api/Default/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetActiveSearch([FromRoute] int id)
+        public async Task<IActionResult> Get(ObjectId id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            
-            var activeSearch = await _context.ActiveSearches.SingleOrDefaultAsync(m => m.ActiveSearchID == id);
-
-            if (activeSearch == null)
+            if (!await helper.Exists(id))
             {
                 return NotFound();
             }
+            var doc = await helper.Get(id);
 
-            return Ok(activeSearch);
+            return Ok(doc);
         }
 
-        // PUT: api/ActiveSearches/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutActiveSearch([FromRoute] int id, [FromBody] ActiveSearch activeSearch)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != activeSearch.ActiveSearchID)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(activeSearch).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ActiveSearchExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/ActiveSearches
+        // POST: api/Default
         [HttpPost]
-        public async Task<IActionResult> PostActiveSearch([FromBody] ActiveSearch activeSearch)
+        public async Task<IActionResult> Post([FromBody] ActiveSearch value)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var id = await helper.Create(value);
 
-            _context.ActiveSearches.Add(activeSearch);
-            await _context.SaveChangesAsync();
+            return new CreatedResult("api/Default/" + id._id, id);
 
-            return CreatedAtAction("GetActiveSearch", new { id = activeSearch.ActiveSearchID }, activeSearch);
         }
 
-        // DELETE: api/ActiveSearches/5
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "LoggedIn")]
-        public async Task<IActionResult> DeleteActiveSearch([FromRoute] int id)
+        // PUT: api/Default/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(ObjectId id, [FromBody] ActiveSearch document)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var activeSearch = await _context.ActiveSearches.SingleOrDefaultAsync(m => m.ActiveSearchID == id);
-            if (activeSearch == null)
+            if (!await helper.Exists(id))
             {
                 return NotFound();
             }
-
-            _context.ActiveSearches.Remove(activeSearch);
-            await _context.SaveChangesAsync();
-
-            return Ok(activeSearch);
+            var doc = await helper.Update(id, document);
+            if (doc)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
         }
 
-        private bool ActiveSearchExists(int id)
+        // DELETE: api/ApiWithActions/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(ObjectId id)
         {
-            return _context.ActiveSearches.Any(e => e.ActiveSearchID == id);
+            if (!await helper.Exists(id))
+            {
+                return NotFound();
+            }
+            var result = await helper.Delete(id);
+            if (result)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
         }
     }
 }

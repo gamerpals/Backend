@@ -1,10 +1,10 @@
 ﻿using System.Text;
 using GamerPalsBackend.DataObjects.Models;
+using GamerPalsBackend.Policies;
 using log4net.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -30,11 +30,10 @@ namespace GamerPalsBackend
                     Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
             services.AddCors();
-            services.AddSwaggerDocument();
-            
-                
-            services.AddDbContext<PalsContext>(options => options.UseSqlServer(
-                    Configuration["ConnectionStrings:LocalConnection"]).EnableSensitiveDataLogging());
+            services.AddSwaggerDocument(c => c.Version = "v1.1");
+
+
+            services.AddTransient<MongoContext>(_ => new MongoContext());
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -52,6 +51,7 @@ namespace GamerPalsBackend
                     ValidateAudience = false
                 };
             });
+            services.AddAuthorization(a => a.AddPolicy("IsOwner", policy => policy.Requirements.Add(new IsOwnerPolicyRequirements())));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

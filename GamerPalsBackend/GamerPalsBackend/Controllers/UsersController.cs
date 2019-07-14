@@ -1,125 +1,92 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GamerPalsBackend.DataObjects;
 using GamerPalsBackend.DataObjects.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
+using MongoDB.Bson;
 
 namespace GamerPalsBackend.Controllers
 {
-    [Authorize]
-    [Produces("application/json")]
-    [Route("api/Users")]
-    public class UsersController : Controller
+    [Route("api/User")]
+    [ApiController]
+    public class UsersController : ControllerBase
     {
-        private readonly PalsContext _context;
-
-        public UsersController(PalsContext context)
+        private MongoContext _context;
+        private MongoHelper<User> helper;
+        public UsersController(MongoContext context)
         {
             _context = context;
+            helper = new MongoHelper<User>(context);
         }
-
-        // GET: api/Users
+        // GET: api/Default
         [HttpGet]
-        public IEnumerable<User> GetUsers()
+        public async Task<List<User>> Get()
         {
-            return _context.Users;
+            return await helper.GetAll();
         }
 
-        // GET: api/Users/5
+        // GET: api/Default/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUser([FromRoute] int id)
+        public async Task<IActionResult> Get(ObjectId id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var user = await _context.Users.SingleOrDefaultAsync(m => m.UserID == id);
-
-            if (user == null)
+            if (!await helper.Exists(id))
             {
                 return NotFound();
             }
+            var doc = await helper.Get(id);
 
-            return Ok(user);
+            return Ok(doc);
         }
 
-        // PUT: api/Users/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser([FromRoute] int id, [FromBody] User user)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != user.UserID)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(user).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Users
+        // POST: api/Default
         [HttpPost]
-        public async Task<IActionResult> PostUser([FromBody] User user)
+        public async Task<IActionResult> Post([FromBody] User value)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var id = await helper.Create(value);
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            return new CreatedResult("api/Default/" + id._id, id);
 
-            return CreatedAtAction("GetUser", new { id = user.UserID }, user);
         }
 
-        // DELETE: api/Users/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser([FromRoute] int id)
+        // PUT: api/Default/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(ObjectId id, [FromBody] User document)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var user = await _context.Users.SingleOrDefaultAsync(m => m.UserID == id);
-            if (user == null)
+            if (!await helper.Exists(id))
             {
                 return NotFound();
             }
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-
-            return Ok(user);
+            var doc = await helper.Update(id, document);
+            if (doc)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
         }
 
-        private bool UserExists(int id)
+        // DELETE: api/ApiWithActions/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(ObjectId id)
         {
-            return _context.Users.Any(e => e.UserID == id);
+            if (!await helper.Exists(id))
+            {
+                return NotFound();
+            }
+            var result = await helper.Delete(id);
+            if (result)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
         }
     }
 }

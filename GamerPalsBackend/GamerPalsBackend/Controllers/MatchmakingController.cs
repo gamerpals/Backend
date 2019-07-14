@@ -2,6 +2,7 @@
 using System.Linq;
 using GamerPalsBackend.DataObjects.Models;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 
 namespace GamerPalsBackend.Controllers
 {
@@ -9,18 +10,18 @@ namespace GamerPalsBackend.Controllers
     [Route("api/Matchmaking")]
     public class MatchmakingController : Controller
     {
-        private readonly PalsContext _context;
+        private readonly MongoContext _context;
 
-        public MatchmakingController(PalsContext context)
+        public MatchmakingController(MongoContext context)
         {
             _context = context;
         }
 
         [HttpPost]
-        public IEnumerable<ActiveSearch> DoMatchmaking(GameServer server, List<SearchParameter> parameters)
+        public IEnumerable<ActiveSearch> DoMatchmaking(ActiveSearch search)
         {
-            var matches = _context.ActiveSearches.Where(search => search.Server.GameServerID == server.GameServerID).Where(search =>
-                search.Parameters.TrueForAll(parameters.Contains));
+            var matches = _context.ActiveSearchs.Find(s => s.SearchingGame == search.SearchingGame).ToList().Where(s =>
+                search.Parameters.TrueForAll(s.Parameters.Contains));
             return matches;
         }
     }

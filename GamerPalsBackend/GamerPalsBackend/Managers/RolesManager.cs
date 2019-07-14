@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using GamerpalsBackend.DataObjects;
 using GamerPalsBackend.DataObjects.Models;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace GamerPalsBackend.Managers
 {
@@ -12,37 +15,35 @@ namespace GamerPalsBackend.Managers
         {
 
         }
-        public static ClaimsIdentity GetClaimsForUser(this PalsContext context, int userID)
+        public static ClaimsIdentity GetClaimsForUser(this MongoContext context, ObjectId userID)
         {
-            var options = context.UserOptions.FirstOrDefault(opt => opt.UserId == userID);
+            var user = context.Users.Find(u => u._id == userID).SingleAsync();
             var Claims = new List<Claim>();
             Claims.Add(new Claim(ClaimTypes.Role, "Verified"));
-            if (options != null)
+            
+            if (user != null)
             {
-                foreach (UserOptionRoles s in options.UserOptionRoles)
-                {
-                    Claims.Add(new Claim(ClaimTypes.Role, s.Role.RoleName));
-                }
+                    var role = context.Roles.Find(r => r._id == user.Result.Role).Single();
+                    Claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+                    Claims.Add(new Claim("UserID", userID.ToString()));
             }
 
             return new ClaimsIdentity(Claims.ToArray<Claim>());
         }
-        public static void GrantRoleToUser(this PalsContext context, int userId, string rolename)
+        public static void GrantRoleToUser(this MongoContext context, ObjectId userId, string rolename)
         {
-            var options = context.UserOptions.Single(opt => opt.UserId == userId);
+            var user = context.Users.Single(u => u._id == userId);
             var role = context.Roles.Single(r => r.RoleName == rolename);
-            options.UserOptionRoles.Add(new UserOptionRoles {RoleId = role.RoleID, UserOptionId = options.UserOptionsID, Role = role, UserOptions = options });
-            context.Update(options);
-            context.SaveChanges();
+            user.Role = role._id;
+            context.Users.ReplaceOne(u => u._id == user._id, user);
         }
-        public static void RemoveRoleFromUser(this PalsContext context, int userId, string rolename)
+        public static void RemoveRoleFromUser(this MongoContext context, ObjectId userId, string rolename)
         {
-            var options = context.UserOptions.Single(opt => opt.UserId == userId);
+            var user = context.Users.Single(u => u._id == userId);
             var role = context.Roles.Single(r => r.RoleName == rolename);
 
-            var UserOptionRoles = context.UserOptionRoles.Single(uor => (uor.RoleId == role.RoleID && uor.UserOptionId == options.UserOptionsID));
-            context.UserOptionRoles.Remove(UserOptionRoles);
-            context.SaveChanges();
+            user.Role = new ObjectId((string)null);
+            context.Users.ReplaceOne(u => u._id == user._id, user);
         }
     }
 }

@@ -1,124 +1,92 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GamerPalsBackend.DataObjects;
 using GamerPalsBackend.DataObjects.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
+using MongoDB.Bson;
 
 namespace GamerPalsBackend.Controllers
 {
-    [Produces("application/json")]
-    [Route("api/Languages")]
-    public class LanguagesController : Controller
+    [Route("api/Language")]
+    [ApiController]
+    public class LanguagesController : ControllerBase
     {
-        private readonly PalsContext _context;
-
-        public LanguagesController(PalsContext context)
+        private MongoContext _context;
+        private MongoHelper<Language> helper;
+        public LanguagesController(MongoContext context)
         {
             _context = context;
+            helper = new MongoHelper<Language>(context);
         }
-
-        // GET: api/Languages
+        // GET: api/Default
         [HttpGet]
-        public IEnumerable<Language> GetLanguages()
+        public async Task<List<Language>> Get()
         {
-            return _context.Languages;
+            return await helper.GetAll();
         }
 
-        // GET: api/Languages/5
+        // GET: api/Default/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetLanguage([FromRoute] int id)
+        public async Task<IActionResult> Get(ObjectId id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var language = await _context.Languages.SingleOrDefaultAsync(m => m.LanguageID == id);
-
-            if (language == null)
+            if (!await helper.Exists(id))
             {
                 return NotFound();
             }
+            var doc = await helper.Get(id);
 
-            return Ok(language);
+            return Ok(doc);
         }
 
-        // PUT: api/Languages/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutLanguage([FromRoute] int id, [FromBody] Language language)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != language.LanguageID)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(language).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!LanguageExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Languages
+        // POST: api/Default
         [HttpPost]
-        public async Task<IActionResult> PostLanguage([FromBody] Language language)
+        public async Task<IActionResult> Post([FromBody] Language value)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var id = await helper.Create(value);
 
-            _context.Languages.Add(language);
-            await _context.SaveChangesAsync();
+            return new CreatedResult("api/Default/" + id._id, id);
 
-            return CreatedAtAction("GetLanguage", new { id = language.LanguageID }, language);
         }
 
-        // DELETE: api/Languages/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteLanguage([FromRoute] int id)
+        // PUT: api/Default/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(ObjectId id, [FromBody] Language document)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var language = await _context.Languages.SingleOrDefaultAsync(m => m.LanguageID == id);
-            if (language == null)
+            if (!await helper.Exists(id))
             {
                 return NotFound();
             }
-
-            _context.Languages.Remove(language);
-            await _context.SaveChangesAsync();
-
-            return Ok(language);
+            var doc = await helper.Update(id, document);
+            if (doc)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
         }
 
-        private bool LanguageExists(int id)
+        // DELETE: api/ApiWithActions/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(ObjectId id)
         {
-            return _context.Languages.Any(e => e.LanguageID == id);
+            if (!await helper.Exists(id))
+            {
+                return NotFound();
+            }
+            var result = await helper.Delete(id);
+            if (result)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
         }
     }
 }

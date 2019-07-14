@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GamerPalsBackend", "GamerPa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GamerPalsBackend.Generator", "GamerPalsBackend.Generator\GamerPalsBackend.Generator.csproj", "{4CDC6FD3-B89D-42F7-AB0B-570FEB12D512}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReferenceManager", "ReferenceManager\ReferenceManager.csproj", "{130F6126-7886-4413-B60F-AFB23F342B5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReferenceManager", "ReferenceManager\ReferenceManager.csproj", "{130F6126-7886-4413-B60F-AFB23F342B5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamerpalsBackend.DataObjects", "GamerpalsBackend.DataObjects\GamerpalsBackend.DataObjects.csproj", "{08069A30-3DBD-42A6-BF67-7DE2B9B46F63}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GamerPalsBackend.DataObjects", "GamerpalsBackend.DataObjects\GamerPalsBackend.DataObjects.csproj", "{08069A30-3DBD-42A6-BF67-7DE2B9B46F63}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
