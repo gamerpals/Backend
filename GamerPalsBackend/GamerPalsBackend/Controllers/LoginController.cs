@@ -34,7 +34,7 @@ namespace GamerPalsBackend.Controllers
             if (login.Type != 2)
             {
                 var payload = GoogleJsonWebSignature.ValidateAsync(login.Token).Result;
-                user = await Authenticate(payload.Subject, login.Type);
+                user = await Authenticate(payload.Subject, login.Type) ?? CreateUser(payload.Subject);
             }
             else
             {
@@ -51,11 +51,13 @@ namespace GamerPalsBackend.Controllers
             }
         }
 
-        private UserDTO CreateUser(string googletoken)
+        private User CreateUser(string googletoken)
         {
             User u = new User
             {
-                GoogleId = googletoken
+                GoogleId = googletoken,
+                CreateTime = DateTime.Now,
+                ProfileComplete = false
             };
             return null;
         }
