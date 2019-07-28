@@ -53,7 +53,7 @@ namespace GamerPalsBackend.Controllers
 
         // PUT: api/Default/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(ObjectId id, [FromBody] IModelBase document)
+        public async Task<IActionResult> Put([FromQuery]ObjectId id, [FromBody] IModelBase document)
         {
             if (!await helper.Exists(id))
             {
@@ -70,7 +70,7 @@ namespace GamerPalsBackend.Controllers
             }
         }
 
-        // DELETE: api/ApiWithActions/5
+        // DELETE: api/ApiWith/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(ObjectId id)
         {

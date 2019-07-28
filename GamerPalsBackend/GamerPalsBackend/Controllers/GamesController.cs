@@ -12,81 +12,46 @@ namespace GamerPalsBackend.Controllers
 {
     [Route("api/Game")]
     [ApiController]
-    public class GamesController : ControllerBase
+    public class GamesController : AbstractPalsController<Game>
     {
         private MongoContext _context;
-        private MongoHelper<Game> helper;
-        public GamesController(MongoContext context)
+        public GamesController(MongoContext context) : base(context)
         {
             _context = context;
-            helper = new MongoHelper<Game>(context);
         }
         // GET: api/Default
         [HttpGet]
         public async Task<List<Game>> Get()
         {
-            return await helper.GetAll();
+            return await base.GetAll();
         }
 
         // GET: api/Default/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(ObjectId id)
+        public async Task<IActionResult> Get([FromRoute] string id)
         {
-            if (!await helper.Exists(id))
-            {
-                return NotFound();
-            }
-            var doc = await helper.Get(id);
-
-            return Ok(doc);
+            return await base.GetSingle(id);
         }
 
         // POST: api/Default
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Game value)
         {
-            var id = await helper.Create(value);
-
-            return new CreatedResult("api/Default/" + id._id, id);
-
+            return await base.PostBase(value);
         }
 
         // PUT: api/Default/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(ObjectId id, [FromBody] Game document)
+        public async Task<IActionResult> Put([FromRoute]string id, [FromBody] Game document)
         {
-            if (!await helper.Exists(id))
-            {
-                return NotFound();
-            }
-            var doc = await helper.Update(id, document);
-            if (doc)
-            {
-                return Ok();
-            }
-            else
-            {
-                return NoContent();
-            }
+            return await base.PutBase(id, document);
         }
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(ObjectId id)
+        public async Task<IActionResult> Delete([FromRoute] string id)
         {
-            if (!await helper.Exists(id))
-            {
-                return NotFound();
-            }
-            var result = await helper.Delete(id);
-            if (result)
-            {
-                return Ok();
-            }
-            else
-            {
-                return NoContent();
-            }
+            return await base.DeleteBase(id);
         }
     }
 }
