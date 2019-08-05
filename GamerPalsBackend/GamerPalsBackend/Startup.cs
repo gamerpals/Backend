@@ -24,12 +24,13 @@ namespace GamerPalsBackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             byte[] key = Encoding.UTF8.GetBytes(Settings.Secret);
             services.AddMvc().AddJsonOptions(
                 options => options.SerializerSettings.ReferenceLoopHandling =
                     Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
-            services.AddCors();
+            
             services.AddSwaggerDocument(c => c.Version = "v1.1");
 
 
@@ -57,8 +58,6 @@ namespace GamerPalsBackend
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory factory)
         {
-            Log4NetConfig conf = new Log4NetConfig();
-            
             // global cors policy
             app.UseCors(x => x
                 .AllowAnyOrigin()

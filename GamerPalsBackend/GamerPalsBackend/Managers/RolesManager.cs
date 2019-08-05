@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using GamerpalsBackend.DataObjects;
@@ -17,15 +19,22 @@ namespace GamerPalsBackend.Managers
         }
         public static ClaimsIdentity GetClaimsForUser(this MongoContext context, ObjectId userID)
         {
-            var user = context.Users.Find(u => u._id == userID).SingleAsync();
+            var user = context.Users.Find(u => u._id == userID).SingleAsync().Result;
             var Claims = new List<Claim>();
             Claims.Add(new Claim(ClaimTypes.Role, "Verified"));
             
             if (user != null)
             {
-                    var role = context.Roles.Find(r => r._id == user.Result.Role).Single();
+                try
+                {
+                    var role = context.Roles.Find(r => r._id == user.Role).Single();
                     Claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
-                    Claims.Add(new Claim("UserID", userID.ToString()));
+                }
+                catch(Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+                Claims.Add(new Claim("UserID", userID.ToString()));
             }
 
             return new ClaimsIdentity(Claims.ToArray<Claim>());

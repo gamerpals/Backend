@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +14,7 @@ using GamerPalsBackend.Managers;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using GamerPalsBackend.DataObjects;
+using MongoDB.Driver;
 
 namespace GamerPalsBackend.Controllers
 {
@@ -34,7 +36,7 @@ namespace GamerPalsBackend.Controllers
             if (login.Type != 2)
             {
                 var payload = GoogleJsonWebSignature.ValidateAsync(login.Token).Result;
-                user = await Authenticate(payload.Subject, login.Type) ?? CreateUser(payload.Subject);
+                user = await Authenticate(payload.Subject, login.Type) ?? CreateUser(payload.Subject).Result;
             }
             else
             {
@@ -51,7 +53,7 @@ namespace GamerPalsBackend.Controllers
             }
         }
 
-        private User CreateUser(string googletoken)
+        private async Task<User> CreateUser(string googletoken)
         {
             User u = new User
             {
@@ -59,18 +61,26 @@ namespace GamerPalsBackend.Controllers
                 CreateTime = DateTime.Now,
                 ProfileComplete = false
             };
-            return null;
+            await _context.Users.InsertOneAsync(u);
+            return u;
         }
         private async Task<User> Authenticate(string id, int type)
         {
             User user = null;
-            if (type == 1)
+            try
             {
-                user = _context.Users.Single(u => u.GoogleId.Equals(id));
+                if (type == 1)
+                {
+                    user = _context.Users.Find(u => u.GoogleId.Equals(id)).Single();
+                }
+                else if (type == 2)
+                {
+                    user = _context.Users.Find(u => u.GoogleId.Equals(id)).Single();
+                }
             }
-            else if(type == 2)
+            catch (Exception e)
             {
-                user = _context.Users.Single(u => u.GoogleId.Equals(id));
+                Debug.WriteLine(e.Message);
             }
 
             // return null if user not found
