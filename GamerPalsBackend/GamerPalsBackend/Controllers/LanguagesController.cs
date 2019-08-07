@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using GamerPalsBackend.DataObjects;
 using GamerPalsBackend.DataObjects.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
@@ -12,6 +13,7 @@ namespace GamerPalsBackend.Controllers
 {
     [Route("api/Language")]
     [ApiController]
+    [Authorize(Roles = Role.AdminBlank)]
     public class LanguagesController : AbstractPalsController<Language>
     {
         private MongoContext _context;

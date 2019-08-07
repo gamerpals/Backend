@@ -11,9 +11,13 @@ namespace GamerPalsBackend.DataObjects.Models
         public string RoleName { get; set; }
         public int RoleCode { get; set; }
 
-        public const string Verified = "Verified";
-        public const string VIP = "VIP" + ", " + Verified;
-        public const string Mod = "Mod, " + VIP;
-        public const string Admin = "Admin, " + Mod;
+        public const string Verified = VerifiedBlank;
+        public const string VIP = VIPBlank + ", " + Verified;
+        public const string Mod = ModBlank + ", " + VIP;
+        public const string Admin = AdminBlank + ", " + Mod;
+        public const string AdminBlank = "Admin";
+        public const string VerifiedBlank = "Verified";
+        public const string VIPBlank = "VIP";
+        public const string ModBlank = "Mod";
     }
 }

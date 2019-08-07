@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using GamerPalsBackend.DataObjects.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
@@ -8,6 +9,7 @@ namespace GamerPalsBackend.Controllers
 {
     [Produces("application/json")]
     [Route("api/Matchmaking")]
+    [Authorize(Roles = Role.VerifiedBlank)]
     public class MatchmakingController : Controller
     {
         private readonly MongoContext _context;

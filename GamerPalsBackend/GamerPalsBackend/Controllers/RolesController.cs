@@ -13,7 +13,7 @@ namespace GamerPalsBackend.Controllers
 {
     [Route("api/Role")]
     [ApiController]
-    [Authorize(Roles = Role.Admin)]
+    [Authorize(Roles = Role.AdminBlank)]
     public class RolesController : AbstractPalsController<Role>
     {
         private MongoContext _context;
