@@ -42,7 +42,7 @@ namespace GamerPalsBackend.Controllers
 
         // PUT: api/Default/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put([FromRoute]string id, [FromBody] ActiveSearch document)
+        public async Task<IActionResult> Put([FromRoute]string id, [FromBody] string document)
         {
             return await base.PutBase(id, document);
         }

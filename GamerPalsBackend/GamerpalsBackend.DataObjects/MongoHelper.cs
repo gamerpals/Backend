@@ -32,6 +32,7 @@ namespace GamerPalsBackend.DataObjects
         public async Task<bool> Update(ObjectId id, T document)
         {
             var filter = Builders<T>.Filter.Eq("_id", id);
+            
             return (await coll.ReplaceOneAsync(filter, document)).IsAcknowledged;
         }
 

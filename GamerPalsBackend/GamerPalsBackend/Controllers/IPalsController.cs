@@ -12,7 +12,7 @@ namespace GamerPalsBackend.Controllers
         Task<List<T>> GetAll();
         Task<IActionResult> GetSingle(ObjectId id);
         Task<IActionResult> PostBase(T document);
-        Task<IActionResult> PutBase(ObjectId id, T document);
+        Task<IActionResult> PutBase(ObjectId id, string document);
         Task<IActionResult> DeleteBase(ObjectId id);
     }
 }

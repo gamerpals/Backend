@@ -6,6 +6,9 @@ using GamerPalsBackend.DataObjects;
 using GamerPalsBackend.DataObjects.Models;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace GamerPalsBackend.Controllers
 {
@@ -42,22 +45,36 @@ namespace GamerPalsBackend.Controllers
         public async Task<IActionResult> PostBase(T doc)
         {
             var id = await helper.Create(doc);
-
             return await GetSingle(id._id);
         }
 
-        public async Task<IActionResult> PutBase([FromRoute] string id, [FromBody] T document)
+        public async Task<IActionResult> PutBase([FromRoute] string id, [FromBody] string document)
         {
+            try
+            {
+                JObject.Parse(document);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
+
             return await PutBase(new ObjectId(id), document);
         }
 
-        public async Task<IActionResult> PutBase([FromRoute] ObjectId id,[FromBody] T document)
+        public async Task<IActionResult> PutBase([FromRoute] ObjectId id,[FromBody] string document)
         {
             if (!await helper.Exists(id))
             {
                 return NotFound();
             }
-            var doc = await helper.Update(id, document);
+
+            T original = helper.Get(id).Result;
+            var overwrite = BsonDocument.Parse(document);
+            var origin = original.ToBsonDocument();
+            var newDoc = origin.Merge(overwrite, true);
+            var update = BsonSerializer.Deserialize<T>(newDoc);
+            var doc = await helper.Update(id, update);
             if (doc)
             {
                 return Ok();

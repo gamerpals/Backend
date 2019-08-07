@@ -42,9 +42,9 @@ namespace GamerPalsBackend.Controllers
 
         // PUT: api/Default/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put([FromRoute]string id, [FromBody] User document)
+        public async Task<IActionResult> Put([FromRoute]string id, [FromBody] object document)
         {
-            return await base.PutBase(id, document);
+            return await base.PutBase(id, document.ToString());
         }
 
         // DELETE: api/ApiWithActions/5
