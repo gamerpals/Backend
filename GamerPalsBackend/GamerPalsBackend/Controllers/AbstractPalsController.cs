@@ -15,10 +15,12 @@ namespace GamerPalsBackend.Controllers
     public class AbstractPalsController<T> : ControllerBase, IPalsController<T> where T : IModelBase
     {
         protected MongoHelper<T> helper;
+        protected MongoContext _context;
 
         public AbstractPalsController(MongoContext context)
         {
             helper = new MongoHelper<T>(context);
+            _context = context;
         }
 
         public async Task<List<T>> GetAll()
@@ -74,9 +76,30 @@ namespace GamerPalsBackend.Controllers
             var origin = original.ToBsonDocument();
             var newDoc = origin.Merge(overwrite, true);
             var update = BsonSerializer.Deserialize<T>(newDoc);
+            
             var doc = await helper.Update(id, update);
             if (doc)
             {
+                var cache = update as User;
+                if (cache != null)
+                {
+                    if (!cache.ProfileComplete)
+                    {
+                        if (IsProfileComplete(cache))
+                        {
+                            cache.ProfileComplete = true;
+                            bool extra = await new MongoHelper<User>(_context).Update(id, cache);
+                            if (extra)
+                            {
+                                return Ok();
+                            }
+                            else
+                            {
+                                return Conflict("Failed to set profile to complete");
+                            }
+                        }
+                    }
+                }
                 return Ok();
             }
             else
@@ -105,6 +128,13 @@ namespace GamerPalsBackend.Controllers
             {
                 return NoContent();
             }
+        }
+
+        private bool IsProfileComplete(User u)
+        {
+            return u.ProfileName != default(string) && u.Birthday != default(DateTime) && u.Country != default(ObjectId) &&
+                   u.Gender != default(string) && u.Languages != default(List<ObjectId>) &&
+                   u.ProfileDescription != default(string);
         }
     }
 }
