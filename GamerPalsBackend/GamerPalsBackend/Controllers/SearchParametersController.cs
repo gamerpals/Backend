@@ -16,10 +16,8 @@ namespace GamerPalsBackend.Controllers
     [Authorize(Roles = Role.AdminBlank)]
     public class SearchParametersController : AbstractPalsController<SearchParameter>
     {
-        private MongoContext _context;
         public SearchParametersController(MongoContext context) : base(context)
         {
-            _context = context;
         }
         // GET: api/Default
         [HttpGet]

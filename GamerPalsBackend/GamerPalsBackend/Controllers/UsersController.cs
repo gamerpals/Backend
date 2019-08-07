@@ -14,10 +14,8 @@ namespace GamerPalsBackend.Controllers
     [ApiController]
     public class UsersController : AbstractPalsController<User>
     {
-        private MongoContext _context;
         public UsersController(MongoContext context) : base(context)
         {
-            _context = context;
         }
         // GET: api/Default
         [HttpGet]

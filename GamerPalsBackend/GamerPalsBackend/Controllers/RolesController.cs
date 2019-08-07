@@ -16,10 +16,8 @@ namespace GamerPalsBackend.Controllers
     [Authorize(Roles = Role.AdminBlank)]
     public class RolesController : AbstractPalsController<Role>
     {
-        private MongoContext _context;
         public RolesController(MongoContext context) : base(context)
         {
-            _context = context;
         }
         // GET: api/Default
         [HttpGet]

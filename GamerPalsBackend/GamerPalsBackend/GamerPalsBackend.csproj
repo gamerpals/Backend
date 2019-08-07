@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GamerpalsBackend.DataObjects\GamerPalsBackend.DataObjects.csproj" />
+    <ProjectReference Include="..\GamerPalsBackend.Mongo\GamerPalsBackend.Mongo.csproj" />
     <ProjectReference Include="..\ReferenceManager\ReferenceManager.csproj" />
   </ItemGroup>
 

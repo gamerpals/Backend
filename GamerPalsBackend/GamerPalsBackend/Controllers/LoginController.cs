@@ -14,6 +14,7 @@ using GamerPalsBackend.Managers;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using GamerPalsBackend.DataObjects;
+using GamerPalsBackend.Mongo;
 using MongoDB.Driver;
 
 namespace GamerPalsBackend.Controllers

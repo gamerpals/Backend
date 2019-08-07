@@ -16,10 +16,8 @@ namespace GamerPalsBackend.Controllers
     [Authorize(Roles = Role.AdminBlank)]
     public class LanguagesController : AbstractPalsController<Language>
     {
-        private MongoContext _context;
         public LanguagesController(MongoContext context) : base(context)
         {
-            _context = context;
         }
         // GET: api/Default
         [HttpGet]

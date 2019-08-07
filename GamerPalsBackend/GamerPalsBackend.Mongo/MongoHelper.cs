@@ -7,7 +7,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 
-namespace GamerPalsBackend.DataObjects
+namespace GamerPalsBackend.Mongo
 {
     public class MongoHelper<T> where T : IModelBase
     {

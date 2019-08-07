@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using GamerPalsBackend.DataObjects;
 using GamerPalsBackend.DataObjects.Models;
+using GamerPalsBackend.Mongo;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
