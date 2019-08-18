@@ -15,47 +15,51 @@ namespace GamerPalsBackend.Controllers
     [Route("api/User")]
     [ApiController]
     [Authorize(Roles = Role.VerifiedBlank)]
-    public class UsersController : AbstractPalsController<User>
+    public class UsersController : ControllerBase
     {
-        public UsersController(MongoContext context, IAuthorizationService auth) : base(context, auth)
+        private ControllerHelper<User> cont;
+        private IAuthorizationService authorization;
+        public UsersController(MongoContext context, IAuthorizationService auth)
         {
+            cont = new ControllerHelper<User>(context);
+            authorization = auth;
         }
         // GET: api/Default
         [HttpGet]
         public async Task<List<User>> Get()
         {
-            return await base.GetAll();
+            return await cont.FetchAll();
         }
 
         // GET: api/Default/5
         [HttpGet("{id}")]
         public async Task<ActionResult> Get(string id)
         {
-            if (!auth.AuthorizeAsync(User, new ObjectId(id), "IsOwnerPolicy").Result.Succeeded)
+            if (!authorization.AuthorizeAsync(User, new ObjectId(id), "IsOwnerPolicy").Result.Succeeded)
             {
-                return Ok(AnonymizeUserData(GetSingle(id).Result));
+                return Ok(AnonymizeUserData(cont.FetchSingle(id).Result));
             }
-            return Ok(await base.GetSingle(id));
+            return Ok(await cont.FetchSingle(id));
         }
 
         // POST: api/Default
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] User value)
         {
-            return Ok(await base.PostBase(value));
+            return Ok(await cont.Create(value));
         }
 
         // PUT: api/Default/5
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromRoute]string id, [FromBody] object document)
         {
-            var permission = await auth.AuthorizeAsync(User, new ObjectId(id), new IsOwnerPolicyRequirements());
+            var permission = await authorization.AuthorizeAsync(User, new ObjectId(id), new IsOwnerPolicyRequirements());
             if (!permission.Succeeded)
             {
                 return Forbid();
             }
 
-            var res = await base.PutBase(id, document.ToString());
+            var res = await cont.Edit(id, document.ToString());
             if (res.HasValue)
             {
                 if (res.Value)
@@ -77,7 +81,7 @@ namespace GamerPalsBackend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var res = await base.DeleteBase(id);
+            var res = await cont.Remove(id);
             if (res.HasValue)
             {
                 if (res.Value)

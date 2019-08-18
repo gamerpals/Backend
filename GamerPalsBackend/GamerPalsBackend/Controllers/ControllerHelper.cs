@@ -14,34 +14,34 @@ using Newtonsoft.Json.Linq;
 
 namespace GamerPalsBackend.Controllers
 {
-    public class AbstractPalsController<T> : ControllerBase, IPalsController<T> where T : IModelBase
+    public class ControllerHelper<T> : IPalsController<T> where T : IModelBase
     {
         protected MongoHelper<T> helper;
         protected MongoContext _context;
         protected IAuthorizationService auth;
 
-        public AbstractPalsController(MongoContext context)
+        public ControllerHelper(MongoContext context)
         {
             helper = new MongoHelper<T>(context);
             _context = context;
         }
 
-        public AbstractPalsController(MongoContext context, IAuthorizationService auth) : this(context)
+        public ControllerHelper(MongoContext context, IAuthorizationService auth) : this(context)
         {
             this.auth = auth;
         }
 
-        public async Task<List<T>> GetAll()
+        public async Task<List<T>> FetchAll()
         {
             return await helper.GetAll();
         }
 
-        public async Task<T> GetSingle(string id)
+        public async Task<T> FetchSingle(string id)
         {
-            return await GetSingle(new ObjectId(id));
+            return await FetchSingle(new ObjectId(id));
         }
 
-        public async Task<T> GetSingle(ObjectId id)
+        public async Task<T> FetchSingle(ObjectId id)
         {
             if (!await helper.Exists(id))
             {
@@ -52,13 +52,13 @@ namespace GamerPalsBackend.Controllers
             return doc;
         }
 
-        public async Task<T> PostBase(T doc)
+        public async Task<T> Create(T doc)
         {
             var id = await helper.Create(doc);
-            return await GetSingle(id._id);
+            return await FetchSingle(id._id);
         }
 
-        public async Task<bool?> PutBase([FromRoute] string id, [FromBody] string document)
+        public async Task<bool?> Edit([FromRoute] string id, [FromBody] string document)
         {
             try
             {
@@ -69,10 +69,10 @@ namespace GamerPalsBackend.Controllers
                 return null;
             }
 
-            return await PutBase(new ObjectId(id), document);
+            return await Edit(new ObjectId(id), document);
         }
 
-        public async Task<bool?> PutBase([FromRoute] ObjectId id,[FromBody] string document)
+        public async Task<bool?> Edit([FromRoute] ObjectId id,[FromBody] string document)
         {
             if (!await helper.Exists(id))
             {
@@ -117,12 +117,12 @@ namespace GamerPalsBackend.Controllers
             }
         }
 
-        public async Task<bool?> DeleteBase(string id)
+        public async Task<bool?> Remove(string id)
         {
-            return await DeleteBase(new ObjectId(id));
+            return await Remove(new ObjectId(id));
         }
 
-        public async Task<bool?> DeleteBase(ObjectId id)
+        public async Task<bool?> Remove(ObjectId id)
         {
             if (!await helper.Exists(id))
             {

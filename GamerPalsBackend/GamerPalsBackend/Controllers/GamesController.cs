@@ -14,23 +14,25 @@ namespace GamerPalsBackend.Controllers
     [Route("api/Game")]
     [ApiController]
     [Authorize(Roles = Role.VerifiedBlank)]
-    public class GamesController : AbstractPalsController<Game>
+    public class GamesController : ControllerBase
     {
-        public GamesController(MongoContext context) : base(context)
+        private ControllerHelper<Game> cont;
+        public GamesController(MongoContext context)
         {
+            cont = new ControllerHelper<Game>(context);
         }
         // GET: api/Default
         [HttpGet]
         public async Task<List<Game>> Get()
         {
-            return await base.GetAll();
+            return await cont.FetchAll();
         }
 
         // GET: api/Default/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromRoute] string id)
         {
-            return Ok(await base.GetSingle(id));
+            return Ok(await cont.FetchSingle(id));
         }
 
         // POST: api/Default
@@ -38,7 +40,7 @@ namespace GamerPalsBackend.Controllers
         [Authorize(Roles = Role.AdminBlank)]
         public async Task<IActionResult> Post([FromBody] Game value)
         {
-            return Ok(await base.PostBase(value));
+            return Ok(await cont.Create(value));
         }
 
         // PUT: api/Default/5
@@ -46,7 +48,7 @@ namespace GamerPalsBackend.Controllers
         [Authorize(Roles = Role.AdminBlank)]
         public async Task<IActionResult> Put([FromRoute]string id, [FromBody] string document)
         {
-            var res =  await base.PutBase(id, document);
+            var res =  await cont.Edit(id, document);
             if (res.HasValue)
             {
                 if (res.Value)
@@ -69,7 +71,7 @@ namespace GamerPalsBackend.Controllers
         [Authorize(Roles = Role.AdminBlank)]
         public async Task<IActionResult> Delete([FromRoute] string id)
         {
-            var res = await base.DeleteBase(id);
+            var res = await cont.Remove(id);
             if (res.HasValue)
             {
                 if (res.Value)

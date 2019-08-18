@@ -9,10 +9,10 @@ namespace GamerPalsBackend.Controllers
 {
     public interface IPalsController<T>
     {
-        Task<List<T>> GetAll();
-        Task<T> GetSingle(ObjectId id);
-        Task<T> PostBase(T document);
-        Task<bool?> PutBase(ObjectId id, string document);
-        Task<bool?> DeleteBase(ObjectId id);
+        Task<List<T>> FetchAll();
+        Task<T> FetchSingle(ObjectId id);
+        Task<T> Create(T document);
+        Task<bool?> Edit(ObjectId id, string document);
+        Task<bool?> Remove(ObjectId id);
     }
 }
