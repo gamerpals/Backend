@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using GamerPalsBackend.DataObjects;
 using GamerPalsBackend.DataObjects.Models;
+using GamerPalsBackend.Policies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace GamerPalsBackend.Controllers
 {
     [Route("api/User")]
     [ApiController]
+    [Authorize(Roles = Role.VerifiedBlank)]
     public class UsersController : AbstractPalsController<User>
     {
         public UsersController(MongoContext context, IAuthorizationService auth) : base(context, auth)
@@ -47,6 +49,12 @@ namespace GamerPalsBackend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromRoute]string id, [FromBody] object document)
         {
+            var permission = await auth.AuthorizeAsync(User, new ObjectId(id), new IsOwnerPolicyRequirements());
+            if (!permission.Succeeded)
+            {
+                return Forbid();
+            }
+
             var res = await base.PutBase(id, document.ToString());
             if (res.HasValue)
             {
