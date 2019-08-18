@@ -21,7 +21,7 @@ namespace GamerPalsBackend.Managers
         {
             var user = context.Users.Find(u => u._id == userID).SingleAsync().Result;
             var Claims = new List<Claim>();
-            Claims.Add(new Claim(ClaimTypes.Role, "Verified"));
+            Claims.Add(new Claim(ClaimTypes.Role, Role.VerifiedBlank));
             
             if (user != null)
             {

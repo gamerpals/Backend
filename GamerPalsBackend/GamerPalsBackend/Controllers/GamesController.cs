@@ -13,7 +13,7 @@ namespace GamerPalsBackend.Controllers
 {
     [Route("api/Game")]
     [ApiController]
-    [Authorize(Roles = Role.AdminBlank)]
+    [Authorize(Roles = Role.VerifiedBlank)]
     public class GamesController : AbstractPalsController<Game>
     {
         public GamesController(MongoContext context) : base(context)
@@ -21,7 +21,6 @@ namespace GamerPalsBackend.Controllers
         }
         // GET: api/Default
         [HttpGet]
-        [Authorize(Roles = Role.VerifiedBlank)]
         public async Task<List<Game>> Get()
         {
             return await base.GetAll();
@@ -29,7 +28,6 @@ namespace GamerPalsBackend.Controllers
 
         // GET: api/Default/5
         [HttpGet("{id}")]
-        [Authorize(Roles = Role.VerifiedBlank)]
         public async Task<IActionResult> Get([FromRoute] string id)
         {
             return Ok(await base.GetSingle(id));
@@ -37,6 +35,7 @@ namespace GamerPalsBackend.Controllers
 
         // POST: api/Default
         [HttpPost]
+        [Authorize(Roles = Role.AdminBlank)]
         public async Task<IActionResult> Post([FromBody] Game value)
         {
             return Ok(await base.PostBase(value));
@@ -44,6 +43,7 @@ namespace GamerPalsBackend.Controllers
 
         // PUT: api/Default/5
         [HttpPut("{id}")]
+        [Authorize(Roles = Role.AdminBlank)]
         public async Task<IActionResult> Put([FromRoute]string id, [FromBody] string document)
         {
             var res =  await base.PutBase(id, document);
@@ -66,6 +66,7 @@ namespace GamerPalsBackend.Controllers
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = Role.AdminBlank)]
         public async Task<IActionResult> Delete([FromRoute] string id)
         {
             var res = await base.DeleteBase(id);
