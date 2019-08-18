@@ -21,6 +21,7 @@ namespace GamerPalsBackend.Controllers
         }
         // GET: api/Default
         [HttpGet]
+        [Authorize(Roles = Role.VerifiedBlank)]
         public async Task<List<Game>> Get()
         {
             return await base.GetAll();
@@ -28,6 +29,7 @@ namespace GamerPalsBackend.Controllers
 
         // GET: api/Default/5
         [HttpGet("{id}")]
+        [Authorize(Roles = Role.VerifiedBlank)]
         public async Task<IActionResult> Get([FromRoute] string id)
         {
             return Ok(await base.GetSingle(id));
