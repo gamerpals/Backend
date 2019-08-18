@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net.Http.Formatting;
+using System.Text;
 using GamerPalsBackend.DataObjects.Models;
 using GamerPalsBackend.Policies;
 using log4net.AspNetCore;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Serialization;
 
 namespace GamerPalsBackend
 {
@@ -28,9 +30,13 @@ namespace GamerPalsBackend
             services.AddCors();
             byte[] key = Encoding.UTF8.GetBytes(Settings.Secret);
             services.AddMvc().AddJsonOptions(
-                options => options.SerializerSettings.ReferenceLoopHandling =
-                    Newtonsoft.Json.ReferenceLoopHandling.Ignore
-            );
+                options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling =
+                        Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    options.SerializerSettings.ContractResolver =
+                        new CamelCasePropertyNamesContractResolver();
+                });
             
             services.AddSwaggerDocument(c => c.Version = "v1.1");
 
