@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using GamerPalsBackend.DataObjects;
 using GamerPalsBackend.DataObjects.Models;
 using GamerPalsBackend.Mongo;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -17,6 +18,7 @@ namespace GamerPalsBackend.Controllers
     {
         protected MongoHelper<T> helper;
         protected MongoContext _context;
+        protected IAuthorizationService auth;
 
         public AbstractPalsController(MongoContext context)
         {
@@ -24,34 +26,39 @@ namespace GamerPalsBackend.Controllers
             _context = context;
         }
 
+        public AbstractPalsController(MongoContext context, IAuthorizationService auth) : this(context)
+        {
+            this.auth = auth;
+        }
+
         public async Task<List<T>> GetAll()
         {
             return await helper.GetAll();
         }
 
-        public async Task<IActionResult> GetSingle(string id)
+        public async Task<T> GetSingle(string id)
         {
             return await GetSingle(new ObjectId(id));
         }
 
-        public async Task<IActionResult> GetSingle(ObjectId id)
+        public async Task<T> GetSingle(ObjectId id)
         {
             if (!await helper.Exists(id))
             {
-                return NotFound();
+                return default(T);
             }
             var doc = await helper.Get(id);
 
-            return Ok(doc);
+            return doc;
         }
 
-        public async Task<IActionResult> PostBase(T doc)
+        public async Task<T> PostBase(T doc)
         {
             var id = await helper.Create(doc);
             return await GetSingle(id._id);
         }
 
-        public async Task<IActionResult> PutBase([FromRoute] string id, [FromBody] string document)
+        public async Task<bool?> PutBase([FromRoute] string id, [FromBody] string document)
         {
             try
             {
@@ -59,17 +66,17 @@ namespace GamerPalsBackend.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e);
+                return null;
             }
 
             return await PutBase(new ObjectId(id), document);
         }
 
-        public async Task<IActionResult> PutBase([FromRoute] ObjectId id,[FromBody] string document)
+        public async Task<bool?> PutBase([FromRoute] ObjectId id,[FromBody] string document)
         {
             if (!await helper.Exists(id))
             {
-                return NotFound();
+                return null;
             }
 
             T original = helper.Get(id).Result;
@@ -92,43 +99,37 @@ namespace GamerPalsBackend.Controllers
                             bool extra = await new MongoHelper<User>(_context).Update(id, cache);
                             if (extra)
                             {
-                                return Ok();
+                                return true;
                             }
                             else
                             {
-                                return Conflict("Failed to set profile to complete");
+                                return true;
                             }
                         }
                     }
                 }
-                return Ok();
+
+                return true;
             }
             else
             {
-                return NoContent();
+                return false;
             }
         }
 
-        public async Task<IActionResult> DeleteBase(string id)
+        public async Task<bool?> DeleteBase(string id)
         {
             return await DeleteBase(new ObjectId(id));
         }
 
-        public async Task<IActionResult> DeleteBase(ObjectId id)
+        public async Task<bool?> DeleteBase(ObjectId id)
         {
             if (!await helper.Exists(id))
             {
-                return NotFound();
+                return null;
             }
             var result = await helper.Delete(id);
-            if (result)
-            {
-                return Ok();
-            }
-            else
-            {
-                return NoContent();
-            }
+            return result;
         }
 
         private bool IsProfileComplete(User u)

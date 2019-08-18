@@ -14,9 +14,9 @@ namespace GamerPalsBackend.Policies
     public class IsOwnerPolicyHandler : AuthorizationHandler<IsOwnerPolicyRequirements, ObjectId>
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
-            IsOwnerPolicyRequirements requirement, ObjectId accessedResource)
+            IsOwnerPolicyRequirements requirement, ObjectId res)
         {
-            if (context.User.HasClaim(match => match.Type.Equals("UserID")) && context.User.FindFirst(c => c.Type.Equals("UserID")).Value.Equals(accessedResource.ToString()))
+            if (context.User.HasClaim(match => match.Type.Equals("UserID")) && context.User.FindFirst(c => c.Type.Equals("UserID")).Value.Equals(res.ToString()))
             {
                 context.Succeed(requirement);
             }

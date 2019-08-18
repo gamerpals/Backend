@@ -3,6 +3,7 @@ using GamerPalsBackend.DataObjects.Models;
 using GamerPalsBackend.Policies;
 using log4net.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -34,7 +35,7 @@ namespace GamerPalsBackend
             services.AddSwaggerDocument(c => c.Version = "v1.1");
 
 
-            services.AddTransient<MongoContext>(_ => new MongoContext());
+            services.AddTransient(_ => new MongoContext());
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -52,7 +53,8 @@ namespace GamerPalsBackend
                     ValidateAudience = false
                 };
             });
-            services.AddAuthorization(a => a.AddPolicy("IsOwner", policy => policy.Requirements.Add(new IsOwnerPolicyRequirements())));
+            services.AddAuthorization(a => a.AddPolicy("IsOwnerPolicy", policy => policy.Requirements.Add(new IsOwnerPolicyRequirements())));
+            services.AddSingleton<IAuthorizationHandler, IsOwnerPolicyHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -30,28 +30,58 @@ namespace GamerPalsBackend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromRoute] string id)
         {
-            return await base.GetSingle(id);
+            return Ok(await base.GetSingle(id));
         }
 
         // POST: api/Default
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Game value)
         {
-            return await base.PostBase(value);
+            return Ok(await base.PostBase(value));
         }
 
         // PUT: api/Default/5
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromRoute]string id, [FromBody] string document)
         {
-            return await base.PutBase(id, document);
+            var res =  await base.PutBase(id, document);
+            if (res.HasValue)
+            {
+                if (res.Value)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return Conflict();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] string id)
         {
-            return await base.DeleteBase(id);
+            var res = await base.DeleteBase(id);
+            if (res.HasValue)
+            {
+                if (res.Value)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return Conflict();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
         }
     }
 }
