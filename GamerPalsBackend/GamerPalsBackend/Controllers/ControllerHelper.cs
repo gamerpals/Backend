@@ -91,7 +91,7 @@ namespace GamerPalsBackend.Controllers
                 var cache = update as User;
                 if (cache != null)
                 {
-                    if (!cache.ProfileComplete)
+                    if (!cache.ProfileComplete ?? false)
                     {
                         if (IsProfileComplete(cache))
                         {

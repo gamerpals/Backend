@@ -20,10 +20,14 @@ namespace GamerPalsBackend.Policies
             {
                 context.Succeed(requirement);
             }
-
+            else
+            {
+                context.Fail();
+            }
             //TODO: Use the following if targeting a version of
             //.NET Framework older than 4.6:
             //      return Task.FromResult(0);
+            
             return Task.CompletedTask;
         }
     }

@@ -62,7 +62,9 @@ namespace GamerPalsBackend
                 };
             });
             services.AddAuthorization(a => a.AddPolicy("IsOwnerPolicy", policy => policy.Requirements.Add(new IsOwnerPolicyRequirements())));
+            services.AddAuthorization(a => a.AddPolicy("IsInFriendsListPolicy", policy => policy.Requirements.Add(new IsInFriendsListPolicyRequirements())));
             services.AddSingleton<IAuthorizationHandler, IsOwnerPolicyHandler>();
+            services.AddSingleton<IAuthorizationHandler, IsInFriendsListPolicyHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

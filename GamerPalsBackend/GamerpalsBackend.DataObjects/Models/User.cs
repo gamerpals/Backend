@@ -72,6 +72,6 @@ namespace GamerPalsBackend.DataObjects.Models
         public List<ObjectId> PrivateChats { get; set; }
         public List<Notification> Notifications { get; set; }
         public List<ObjectId> ConnectedServices { get; set; }
-        public bool ProfileComplete { get; set; }
+        public bool? ProfileComplete { get; set; }
     }
 }

@@ -37,8 +37,16 @@ namespace GamerPalsBackend.Controllers
         {
             if (!authorization.AuthorizeAsync(User, new ObjectId(id), "IsOwnerPolicy").Result.Succeeded)
             {
-                return Ok(AnonymizeUserData(cont.FetchSingle(id).Result));
+                if (!authorization.AuthorizeAsync(User, new ObjectId(id), "IsInFriendsListPolicy").Result.Succeeded)
+                {
+                    return Ok(AnonymizeUserData(cont.FetchSingle(id).Result, false));
+                }
+                else
+                {
+                    return Ok(AnonymizeUserData(cont.FetchSingle(id).Result, true));
+                }
             }
+            
             return Ok(await cont.FetchSingle(id));
         }
 
@@ -99,9 +107,25 @@ namespace GamerPalsBackend.Controllers
             }
         }
 
-        private User AnonymizeUserData(User u)
+        private User AnonymizeUserData(User u, bool friend)
         {
+            if (!friend)
+            {
+                u.OnlineStatus = "";
+                u.ActiveSearches = null;
+                u.PassiveSearches = null;
+            }
             u.CurrentSession = null;
+            u.GoogleId = null;
+            u.Karma = null;
+            u.GamesSelected = null;
+            u.FriendsList = null;
+            u.RecievedFriendRequests = null;
+            u.SentFriendRequests = null;
+            u.PrivateChats = null;
+            u.Notifications = null;
+            u.ConnectedServices = null;
+            u.ProfileComplete = null;
             return u;
         }
     }
