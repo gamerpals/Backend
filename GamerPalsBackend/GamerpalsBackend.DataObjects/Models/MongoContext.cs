@@ -19,7 +19,7 @@ namespace GamerPalsBackend.DataObjects.Models
         public IMongoCollection<Language> Languages => db.GetCollection<Language>("Language");
         public IMongoCollection<Role> Roles => db.GetCollection<Role>("Role");
         public IMongoCollection<SearchParameter> SearchParameters =>
-            db.GetCollection<SearchParameter>("SearchParameter");
+            db.GetCollection<SearchParameter>("SearchParameters");
         public IMongoCollection<SystemSettings> SystemSettings => db.GetCollection<SystemSettings>("SystemSettings");
 
         public IMongoCollection<PrivateChat> PrivateChats => db.GetCollection<PrivateChat>("PrivateChat");
