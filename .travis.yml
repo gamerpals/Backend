@@ -3,3 +3,8 @@ mono: none
 dotnet: 2.2
 script:
  - dotnet restore
+ deploy:
+  provider: heroku
+  api_key:
+    secure: "d485c439-77ea-4fad-a467-038e98d5448f"
+  app: gamerpals-backend
