@@ -1,4 +1,9 @@
 language: csharp
-solution: GamerPalsBackend.sln
+mono: none
+dotnet: 2.2
 script:
  - dotnet restore
+ deploy:
+  provider: heroku
+  api_key:
+    secure: "YOUR ENCRYPTED API KEY"
