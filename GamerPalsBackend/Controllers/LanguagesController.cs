@@ -13,7 +13,7 @@ namespace GamerPalsBackend.Controllers
 {
     [Route("api/Language")]
     [ApiController]
-    [Authorize(Roles = Role.AdminBlank)]
+    [Authorize(Roles = Role.VerifiedBlank)]
     public class LanguagesController : ControllerBase
     {
         private ControllerHelper<Language> cont;
@@ -37,6 +37,7 @@ namespace GamerPalsBackend.Controllers
 
         // POST: api/Default
         [HttpPost]
+        [Authorize(Roles = Role.VerifiedBlank)]
         public async Task<IActionResult> Post([FromBody] Language value)
         {
             return Ok(await cont.Create(value));
@@ -44,6 +45,7 @@ namespace GamerPalsBackend.Controllers
 
         // PUT: api/Default/5
         [HttpPut("{id}")]
+        [Authorize(Roles = Role.VerifiedBlank)]
         public async Task<IActionResult> Put([FromRoute]string id, [FromBody] string document)
         {
             var res = await cont.Edit(id, document);
@@ -66,6 +68,7 @@ namespace GamerPalsBackend.Controllers
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = Role.VerifiedBlank)]
         public async Task<IActionResult> Delete(string id)
         {
             var res = await cont.Remove(id);
