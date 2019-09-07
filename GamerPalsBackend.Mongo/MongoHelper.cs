@@ -38,10 +38,8 @@ namespace GamerPalsBackend.Mongo
 
         public async Task<T> Create(T document)
         {
-            var doc = document.ToBsonDocument();
-            var idDoc = JsonConvert.DeserializeObject<T>(doc.ToJson());
-            coll.InsertOne(idDoc);
-            return await coll.FindAsync(Builders<T>.Filter.Eq("_id", idDoc._id)).Result.FirstOrDefaultAsync();
+            coll.InsertOne(document);
+            return document;
         }
 
         public async Task<bool> Delete(ObjectId id)

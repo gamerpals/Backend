@@ -54,8 +54,16 @@ namespace GamerPalsBackend.Controllers
 
         public async Task<T> Create(T doc)
         {
-            var id = await helper.Create(doc);
-            return await FetchSingle(id._id);
+            try
+            {
+                var id = await helper.Create(doc);
+                return id;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Exception occured in Helper.Create: " + e.Message);
+                throw;
+            }
         }
 
         public async Task<bool?> Edit([FromRoute] string id, [FromBody] string document)

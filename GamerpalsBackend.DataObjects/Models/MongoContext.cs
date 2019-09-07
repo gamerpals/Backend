@@ -4,7 +4,6 @@ using System.Reflection.Metadata;
 using System.Text;
 using GamerPalsBackend.DataObjects.Models;
 using MongoDB.Driver;
-using Parameter = GamerPalsBackend.DataObjects.Models.SearchParameter;
 
 namespace GamerPalsBackend.DataObjects.Models
 {
@@ -13,16 +12,17 @@ namespace GamerPalsBackend.DataObjects.Models
         private MongoClient client;
         private IMongoDatabase db;
         public IMongoCollection<User> Users => db.GetCollection<User>("User");
-        public IMongoCollection<SearchParameter> Parameters => db.GetCollection<SearchParameter>("Parameter");
         public IMongoCollection<ActiveSearch> ActiveSearchs => db.GetCollection<ActiveSearch>("ActiveSearch");
         public IMongoCollection<Game> Games => db.GetCollection<Game>("Game");
         public IMongoCollection<Language> Languages => db.GetCollection<Language>("Language");
         public IMongoCollection<Role> Roles => db.GetCollection<Role>("Role");
         public IMongoCollection<SearchParameter> SearchParameters =>
             db.GetCollection<SearchParameter>("SearchParameters");
-        public IMongoCollection<SystemSettings> SystemSettings => db.GetCollection<SystemSettings>("SystemSettings");
+        public IMongoCollection<SystemSetting> SystemSettings => db.GetCollection<SystemSetting>("SystemSetting");
 
         public IMongoCollection<PrivateChat> PrivateChats => db.GetCollection<PrivateChat>("PrivateChat");
+
+        public IMongoCollection<MongoImage> MongoImages => db.GetCollection<MongoImage>("MongoImage");
 
         public MongoContext()
         {
