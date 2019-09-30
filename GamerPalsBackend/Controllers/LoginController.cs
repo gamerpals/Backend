@@ -15,6 +15,7 @@ using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using GamerPalsBackend.DataObjects;
 using GamerPalsBackend.Mongo;
+using GamerPalsBackend.Other;
 using MongoDB.Driver;
 
 namespace GamerPalsBackend.Controllers
@@ -90,7 +91,7 @@ namespace GamerPalsBackend.Controllers
 
             // authentication successful so generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(Settings.Secret);
+            var key = Encoding.ASCII.GetBytes(PalsConfiguration.SystemSettings["JWTSecret"]);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = _context.GetClaimsForUser(user._id),

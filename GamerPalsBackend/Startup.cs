@@ -1,14 +1,18 @@
 ﻿using System.Net.Http.Formatting;
 using System.Text;
 using GamerPalsBackend.DataObjects.Models;
+using GamerPalsBackend.Other;
 using GamerPalsBackend.Policies;
+using GamerPalsBackend.WebSockets;
 using log4net.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -29,7 +33,7 @@ namespace GamerPalsBackend
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            byte[] key = Encoding.UTF8.GetBytes(Settings.Secret);
+            byte[] key = Encoding.UTF8.GetBytes(PalsConfiguration.SystemSettings["JWTSecret"]);
             services.AddMvc().AddJsonOptions(
                 options =>
                 {
@@ -39,9 +43,9 @@ namespace GamerPalsBackend
                         new CamelCasePropertyNamesContractResolver();
                     options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Ignore;
                 });
-            
             services.AddSwaggerDocument(c => c.Version = "v1.1");
-
+            services.TryAddSingleton(typeof(IUserIdProvider), typeof(DefaultUserIdProvider));
+            services.AddSignalR();
 
             services.AddTransient(_ => new MongoContext());
             services.AddAuthentication(x =>
@@ -65,6 +69,7 @@ namespace GamerPalsBackend
             services.AddAuthorization(a => a.AddPolicy("IsInFriendsListPolicy", policy => policy.Requirements.Add(new IsInFriendsListPolicyRequirements())));
             services.AddSingleton<IAuthorizationHandler, IsOwnerPolicyHandler>();
             services.AddSingleton<IAuthorizationHandler, IsInFriendsListPolicyHandler>();
+            services.AddSingleton<IHubContext<NotificationHub>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -78,7 +83,7 @@ namespace GamerPalsBackend
                 .AllowCredentials());
             app.UseSwagger();
             app.UseSwaggerUi3();
-
+            app.UseSignalR(conf => conf.MapHub<NotificationHub>("/Hub"));
             app.UseAuthentication();
             app.UseMvc();
         }
