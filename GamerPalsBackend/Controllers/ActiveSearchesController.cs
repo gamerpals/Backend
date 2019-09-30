@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using GamerPalsBackend.DataObjects;
 using GamerPalsBackend.DataObjects.Models;
+using GamerPalsBackend.WebSockets;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using MongoDB.Bson;
 
 namespace GamerPalsBackend.Controllers
@@ -17,9 +19,11 @@ namespace GamerPalsBackend.Controllers
     public class ActiveSearchesController : ControllerBase
     {
         private ControllerHelper<ActiveSearch> cont;
-        public ActiveSearchesController(MongoContext context)
+        private IHubContext<NotificationHub> hubContext;
+        public ActiveSearchesController(MongoContext context, IHubContext<NotificationHub> hub)
         {
             cont = new ControllerHelper<ActiveSearch>(context);
+            hubContext = hub;
         }
         // GET: api/Default
         [HttpGet]
