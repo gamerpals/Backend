@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.Configuration;
 
 namespace GamerPalsBackend.DataObjects.Models
 {
@@ -19,6 +20,9 @@ namespace GamerPalsBackend.DataObjects.Models
         public List<ChatMessage> ChatMessages { get; set; }
         public string DiscordJoinCode { get; set; }
         public bool Active { get; set; }
+        public long DiscordChannelId { get; set; }
+        public long DiscordRoleId { get; set; }
+        public string DiscordInviteCode { get; set; }
     }
     public class Parameters
     {

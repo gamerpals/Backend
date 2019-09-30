@@ -24,6 +24,9 @@ namespace GamerPalsBackend.DataObjects.Models
 
         public IMongoCollection<MongoImage> MongoImages => db.GetCollection<MongoImage>("MongoImage");
 
+        public IMongoCollection<ConnectedService> ConnectedServices =>
+            db.GetCollection<ConnectedService>("ConnectedService");
+
         public MongoContext()
         {
             client =
