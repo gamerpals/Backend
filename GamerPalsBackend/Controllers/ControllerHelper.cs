@@ -66,7 +66,7 @@ namespace GamerPalsBackend.Controllers
             }
         }
 
-        public async Task<bool?> Edit([FromRoute] string id, [FromBody] string document)
+        public async Task<bool?> Edit(string id, string document)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace GamerPalsBackend.Controllers
             return await Edit(new ObjectId(id), document);
         }
 
-        public async Task<bool?> Edit([FromRoute] ObjectId id,[FromBody] string document)
+        public async Task<bool?> Edit(ObjectId id, string document)
         {
             if (!await helper.Exists(id))
             {
@@ -142,9 +142,9 @@ namespace GamerPalsBackend.Controllers
 
         private bool IsProfileComplete(User u)
         {
-            return u.ProfileName != default(string) && u.Birthday != default(DateTime) && u.Country != default(ObjectId) &&
-                   u.Gender != default(string) && u.Languages != default(List<ObjectId>) &&
-                   u.ProfileDescription != default(string);
+            return u.ProfileName != default(string) && u.Birthday != default(DateTime) &&
+                   u.Country != default(ObjectId) &&
+                   u.Gender != default(string) && u.Languages != default(List<ObjectId>);
         }
     }
 }

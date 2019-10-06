@@ -3,17 +3,15 @@ using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using GamerPalsBackend.DataObjects.Models;
 
 namespace GamerpalsBackend.DataObjects.Models
 {
-    public class Country
+    public class Country : IModelBase
     {
         [BsonId]
         public ObjectId _id { get; set; }
-        public string shortName { get; set; }
-        public string isoA2 { get; set; }
-        public string isoA3 { get; set; }
-        public string fullName { get; set; }
-        public string flag { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }  
     }
 }
