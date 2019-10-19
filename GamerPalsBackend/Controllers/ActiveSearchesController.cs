@@ -19,11 +19,9 @@ namespace GamerPalsBackend.Controllers
     public class ActiveSearchesController : ControllerBase
     {
         private ControllerHelper<ActiveSearch> cont;
-        private IHubContext<NotificationHub> hubContext;
-        public ActiveSearchesController(MongoContext context, IHubContext<NotificationHub> hub)
+        public ActiveSearchesController(MongoContext context)
         {
             cont = new ControllerHelper<ActiveSearch>(context);
-            hubContext = hub;
         }
         // GET: api/Default
         [HttpGet]

@@ -69,7 +69,6 @@ namespace GamerPalsBackend
             services.AddAuthorization(a => a.AddPolicy("IsInFriendsListPolicy", policy => policy.Requirements.Add(new IsInFriendsListPolicyRequirements())));
             services.AddSingleton<IAuthorizationHandler, IsOwnerPolicyHandler>();
             services.AddSingleton<IAuthorizationHandler, IsInFriendsListPolicyHandler>();
-            services.AddSingleton<IHubContext<NotificationHub>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
