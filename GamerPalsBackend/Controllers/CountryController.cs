@@ -14,7 +14,6 @@ namespace GamerPalsBackend.Controllers
 {
     [Route("api/Country")]
     [ApiController]
-    [Authorize(Roles = Role.VerifiedBlank)]
     public class CountriesController : ControllerBase
     {
         private ControllerHelper<Country> cont;
